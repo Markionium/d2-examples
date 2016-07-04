@@ -10,44 +10,15 @@ if (process.env.NODE_ENV !== 'production') {
     jQuery.ajaxSetup({ headers: { Authorization: dhisDevConfig.authorization } }); // eslint-disable-line
 }
 
-import React from 'react';
-import { render } from 'react-dom';
 import log from 'loglevel';
 import { init, config, getManifest } from 'd2/lib/d2';
 
-import LoadingMask from 'd2-ui/lib/loading-mask/LoadingMask.component';
+import './filtering/index';
+import './deeperModels/index';
 
-// The react-tap-event-plugin is required by material-ui to make touch screens work properly with onClick events
-import 'react-tap-event-plugin';
+const baseUrl = dhisDevConfig.baseUrl;
+console.log(dhisDevConfig.baseUrl);
 
-import App from './app/App';
-import './app/app.scss';
-
-// Render the a LoadingMask to show the user the app is in loading
-// The consecutive render after we did our setup will replace this loading mask
-// with the rendered version of the application.
-render(<LoadingMask />, document.getElementById('app'));
-
-/**
- * Renders the application into the page.
- *
- * @param d2 Instance of the d2 library that is returned by the `init` function.
- */
-function startApp(d2) {
-    render(<App d2={d2} />, document.querySelector('#app'));
-}
-
-
-// Load the application manifest to be able to determine the location of the Api
-// After we have the location of the api, we can set it onto the d2.config object
-// and initialise the library. We use the initialised library to pass it into the app
-// to make it known on the context of the app, so the sub-components (primarily the d2-ui components)
-// can use it to access the api, translations etc.
-getManifest('./manifest.webapp')
-    .then(manifest => {
-        const baseUrl = process.env.NODE_ENV === 'production' ? manifest.getBaseUrl() : dhisDevConfig.baseUrl;
-        config.baseUrl = `${baseUrl}/api`;
-    })
-    .then(init)
-    .then(startApp)
-    .catch(log.error.bind(log));
+init({
+    baseUrl: `${baseUrl}/api/24`,
+});
