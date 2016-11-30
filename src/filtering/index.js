@@ -1,6 +1,6 @@
 import { getInstance } from 'd2/lib/d2';
 
-function filteringExample(d2) {
+export function filteringExample(d2) {
     // Model to work on
     d2.models.indicators
     // Create a filter instance that uses a builder pattern to create a modified ModelDefintion
@@ -19,12 +19,10 @@ function filteringExample(d2) {
     d2.models.dataSet
         // Filters can be chained to filter on multiple properties. (These are interpreted by the API and an AND (OR is not currently supported))
         .filter().on('name').like('summary')
-        .filter().on('dataElements.id').equals('pN3V4jZeCmU')
+        .filter().on('dataSetElements.dataElement.id').equals('pN3V4jZeCmU')
         .list()
         .then(dataSets => {
             console.log('Filter example 2:');
             console.log(dataSets);
         });
 }
-
-getInstance().then(filteringExample);

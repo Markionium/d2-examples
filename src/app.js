@@ -3,22 +3,30 @@
 // DHIS_CONFIG is replaced with an empty object
 const dhisDevConfig = DHIS_CONFIG; // eslint-disable-line
 
-// This code will only be included in non-production builds of the app
-// It sets up the Authorization header to be used during CORS requests
-// This way we can develop using webpack without having to install the application into DHIS2.
-if (process.env.NODE_ENV !== 'production') {
-    jQuery.ajaxSetup({ headers: { Authorization: dhisDevConfig.authorization } }); // eslint-disable-line
-}
+import { init, config, getInstance } from 'd2/lib/d2';
 
-import log from 'loglevel';
-import { init, config, getManifest } from 'd2/lib/d2';
+import { filteringExample } from './filtering/index';
+import { deeperFilteringExample } from './deeperModels/index';
 
-import './filtering/index';
-import './deeperModels/index';
-
+// baseUrl should normally be set from the manifest.webapp to make sure it points to the correct DHIS2 root.
 const baseUrl = dhisDevConfig.baseUrl;
 console.log(dhisDevConfig.baseUrl);
 
-init({
-    baseUrl: `${baseUrl}/api/24`,
+// Register the i18n files to be used as sources (Note that this is done before initializing using the init())
+config.i18n.sources.add(`./i18n-files/my_translations_nl.properties`); // Primary language
+config.i18n.sources.add(`./i18n-files/english_fallback.properties`); // Fallback language
+
+init({ baseUrl: `${baseUrl}/api/24` });
+
+// After we retreive the inialized instance we can use that to locate keys.
+getInstance().then(d2 => {
+    console.log(d2.i18n.getTranslation('name'));
+    console.log(d2.i18n.getTranslation('location'));
+    console.log(d2.i18n.getTranslation('profession'));
+});
+
+
+getInstance().then(d2 => {
+    filteringExample(d2);
+    deeperFilteringExample(d2);
 });

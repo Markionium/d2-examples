@@ -1,8 +1,7 @@
 'use strict';
 
-var webpack = require('webpack');
-var path = require('path');
-var colors = require('colors');
+const webpack = require('webpack');
+const path = require('path');
 
 const isDevBuild = process.argv[1].indexOf('webpack-dev-server') !== -1;
 const dhisConfigPath = process.env.DHIS2_HOME && `${process.env.DHIS2_HOME}/config`;
@@ -24,7 +23,7 @@ console.log(JSON.stringify(dhisConfig, null, 2), '\n');
 
 function log(req, res, opt) {
     req.headers.Authorization = dhisConfig.authorization;
-    console.log('[PROXY]'.cyan.bold, req.method.green.bold, req.url.magenta, '=>'.dim, opt.target.dim);
+    console.log('[PROXY]', req.method, req.url, '=>', opt.target);
 }
 
 const webpackConfig = {
@@ -43,17 +42,6 @@ const webpackConfig = {
                 test: /\.jsx?$/,
                 exclude: /node_modules/,
                 loader: 'babel',
-                query: {
-                    presets: ['es2015', 'stage-0', 'react'],
-                },
-            },
-            {
-                test: /\.css$/,
-                loader: 'style!css',
-            },
-            {
-                test: /\.scss$/,
-                loader: 'style!css!sass',
             },
         ],
     },
@@ -71,10 +59,6 @@ const webpackConfig = {
         compress: true,
         proxy: [
             { path: '/api/*', target: dhisConfig.baseUrl, bypass: log },
-            { path: '/dhis-web-commons/*', target: dhisConfig.baseUrl, bypass: log },
-            { path: '/icons/*', target: dhisConfig.baseUrl, bypass: log },
-            { path: '/css/*', target: 'http://localhost:8081/build', bypass: log },
-            { path: '/jquery.min.js', target: 'http://localhost:8081/node_modules/jquery/dist', bypass: log },
             { path: '/polyfill.min.js', target: 'http://localhost:8081/node_modules/babel-polyfill/dist', bypass: log },
         ],
     },
@@ -90,9 +74,6 @@ if (!isDevBuild) {
         new webpack.optimize.DedupePlugin(),
         new webpack.optimize.OccurenceOrderPlugin(),
         new webpack.optimize.UglifyJsPlugin({
-            //     compress: {
-            //         warnings: false,
-            //     },
             comments: false,
             beautify: true,
         }),
